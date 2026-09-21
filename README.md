@@ -46,6 +46,19 @@ A monorepo of **handy tools rebuilt for mobile phones**. Every tool here was ori
 
 > Turn files into text you can actually use — copy to AI, paste anywhere, export as Markdown.
 
+**Based on:** [Microsoft markitdown](https://github.com/microsoft/markitdown) (MIT License) — an open-source tool that converts Office documents, PDFs, images, and more to Markdown. We rewrote its core in Rust and wrapped it as a phone-first mobile app.
+
+**Downloads:**
+
+| Platform | File | Size |
+|----------|------|------|
+|  Android (APK) | [textify-android-debug.apk](https://github.com/h4444433333/tools/releases/latest/download/textify-android-debug.apk) | 443 MB |
+| 💻 Mac (Apple Silicon) | [textify-mac-universal.zip](https://github.com/h4444433333/tools/releases/latest/download/textify-mac-universal.zip) | 6.6 MB |
+| 🍎 iPhone (iOS) | Coming soon — requires Apple Developer signing | — |
+
+> Android: enable "Install from unknown sources" in Settings, then tap the APK.
+> Mac: unzip, drag to Applications. If Gatekeeper blocks it, right-click → Open.
+
 **Features:**
 - 📂 Built-in file browser — navigate your phone's storage, no external app needed
 - 🔄 One-tap conversion: `.docx` / `.html` / `.csv` / `.json` / `.txt` → Markdown
@@ -58,19 +71,27 @@ A monorepo of **handy tools rebuilt for mobile phones**. Every tool here was ori
 - **App shell**: [Tauri v2](markitdown-main/Tauri/app/) — one codebase → Android APK + iOS IPA + Mac .app
 - **Based on**: [Microsoft markitdown](markitdown-main/) (original Python project, kept as reference)
 
-**Quick Start:**
+**快速上手：**
 ```bash
-# Clone
+# 克隆整个仓库
 git clone https://github.com/h4444433333/tools.git && cd tools
 
-# Build engine (Rust)
+# 只拉取某一个工具（稀疏检出，省流量）
+git clone --filter=blob:none --sparse https://github.com/h4444433333/tools.git
+cd tools
+git sparse-checkout set markitdown-main/Tauri   # 只要这一个工具的代码
+
+# 编译引擎
 cd markitdown-main/Tauri/engine && cargo build --release
 
-# Build Mac app
+# 跑 Mac 版
 cd ../app/src-tauri && cargo build && open target/debug/mdapp
 
-# Build Android APK
+# 出安卓 APK
 cd ../.. && npx tauri android build --apk
+
+# 出 iPhone 版（需苹果开发者账号）
+cd ../.. && npx tauri ios build
 ```
 
 ---
@@ -107,6 +128,19 @@ cd ../.. && npx tauri android build --apk
 
 > 把任何文件变成你能用的文字——复制给 AI、随处粘贴、导出 Markdown。
 
+**基于：** [Microsoft markitdown](https://github.com/microsoft/markitdown)（MIT 开源协议）——微软出品的文档转 Markdown 工具。我们用 Rust 重写了它的核心引擎，并包装成手机优先的移动端 App。
+
+**下载安装：**
+
+| 平台 | 文件 | 大小 |
+|------|------|------|
+| 📱 安卓 (APK) | [textify-android-debug.apk](https://github.com/h4444433333/tools/releases/latest/download/textify-android-debug.apk) | 443 MB |
+| 💻 Mac (苹果芯片) | [textify-mac-universal.zip](https://github.com/h4444433333/tools/releases/latest/download/textify-mac-universal.zip) | 6.6 MB |
+| 🍎 iPhone (iOS) | 待上架 —— 需要苹果开发者签名 | — |
+
+> 安卓：设置里开启“允许安装未知来源应用”，然后点 APK 安装。
+> Mac：解压后拖到“应用程序”文件夹。如果提示无法打开，右键→打开。
+
 **功能：**
 - 📂 App 内自带文件浏览器——直接翻手机存储，不用跳到别的 App
 - 🔄 一键转换：`.docx` / `.html` / `.csv` / `.json` / `.txt` → Markdown
@@ -121,8 +155,13 @@ cd ../.. && npx tauri android build --apk
 
 **快速上手：**
 ```bash
-# 克隆
+# 克隆整个仓库
 git clone https://github.com/h4444433333/tools.git && cd tools
+
+# 只拉取某一个工具（稀疏检出，省流量）
+git clone --filter=blob:none --sparse https://github.com/h4444433333/tools.git
+cd tools
+git sparse-checkout set markitdown-main/Tauri   # 只要这一个工具的代码
 
 # 编译引擎
 cd markitdown-main/Tauri/engine && cargo build --release
@@ -132,6 +171,9 @@ cd ../app/src-tauri && cargo build && open target/debug/mdapp
 
 # 出安卓 APK
 cd ../.. && npx tauri android build --apk
+
+# 出 iPhone 版（需苹果开发者账号）
+cd ../.. && npx tauri ios build
 ```
 
 ---
