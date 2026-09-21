@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0" />
+<title>万物转文本</title>
+<style>
+  /* 设计令牌：单一强调色锁死（深青），暖中性底，柔和圆角一档 */
+  :root{
+    --bg:#f4f3f0; --surface:#ffffff; --ink:#191a19; --muted:#6c706b; --line:#e7e5e0;
+    --accent:#0f766e; --accent-press:#0b5c56; --accent-soft:#e5f1ef;
+    --danger:#b23c34; --radius-card:18px; --radius-btn:12px;
+    --sa-top:env(safe-area-inset-top); --sa-bot:env(safe-area-inset-bottom);
+    --font:-apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,monospace;
+    --shadow:0 1px 2px rgba(20,30,28,.05),0 6px 20px rgba(20,30,28,.06);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+  html,body{height:100%}
+  body{margin:0;font-family:var(--font);background:var(--bg);color:var(--ink);
+    display:flex;justify-content:center;-webkit-font-smoothing:antialiased}
+  #app{position:relative;width:100%;max-width:440px;min-height:100dvh;background:var(--bg);
+    overflow:hidden;display:flex;flex-direction:column}
+
+  /* 顶部栏 */
+  .topbar{padding:calc(14px + var(--sa-top)) 18px 10px;display:flex;align-items:center;
+    justify-content:space-between;gap:10px}
+  .brand{font-size:13px;font-weight:600;color:var(--muted);letter-spacing:.02em}
+  .iconbtn{width:38px;height:38px;border-radius:50%;border:0;background:transparent;color:var(--ink);
+    display:grid;place-items:center;cursor:pointer}
+  .iconbtn:active{background:var(--line)}
+  .iconbtn svg{width:22px;height:22px}
+
+  /* 视图切换 */
+  .view{flex:1;overflow-y:auto;padding:6px 18px calc(28px + var(--sa-bot));display:none;
+    animation:fade .28s ease}
+  .view.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  h1.title{font-size:26px;line-height:1.15;margin:6px 0 4px;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:14px;line-height:1.5;margin:0 0 22px}
+
+  /* 卡片/列表 */
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-card);
+    box-shadow:var(--shadow)}
+  .list-empty{text-align:center;padding:46px 20px;color:var(--muted)}
+  .list-empty svg{width:52px;height:52px;opacity:.5;margin-bottom:12px;color:var(--accent)}
+  .row{display:flex;align-items:center;gap:14px;padding:15px 16px;cursor:pointer;width:100%;
+    border:0;background:var(--surface);text-align:left;font-family:var(--font);color:var(--ink)}
+  .row + .row{border-top:1px solid var(--line)}
+  .ficon{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;flex:none;
+    font-size:11px;font-weight:700;color:#fff;letter-spacing:.02em}
+  .f-doc{background:#2f6bed}.f-csv{background:#0f766e}.f-json{background:#b45309}
+  .f-html{background:#7c3aed}.f-txt{background:#6b7280}.f-pdf{background:#b23c34}
+  .f-off{background:#c7c9c4}
+  .row .meta{flex:1;min-width:0}
+  .row .name{font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row .info{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .row.off{opacity:.55}
+  .badge{font-size:11px;color:var(--muted);border:1px solid var(--line);padding:2px 8px;border-radius:999px}
+  .chev{width:20px;height:20px;color:#c2c4bf;flex:none}
+
+  /* 主按钮 + 悬浮加号 */
+  .btn{width:100%;border:0;border-radius:var(--radius-btn);padding:15px;font-size:16px;font-weight:600;
+    font-family:var(--font);cursor:pointer;transition:transform .05s,background .15s}
+  .btn:active{transform:scale(.985)}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-primary:active{background:var(--accent-press)}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .btn:disabled{opacity:.5;cursor:default}
+  .fab{position:absolute;right:20px;bottom:calc(22px + var(--sa-bot));width:60px;height:60px;border-radius:50%;
+    background:var(--accent);color:#fff;border:0;display:grid;place-items:center;cursor:pointer;
+    box-shadow:0 8px 22px rgba(15,118,110,.4);z-index:5}
+  .fab:active{transform:scale(.94);background:var(--accent-press)}
+  .fab svg{width:30px;height:30px}
+
+  /* 底部弹层（来源选择） */
+  .scrim{position:absolute;inset:0;background:rgba(15,20,18,.38);opacity:0;pointer-events:none;
+    transition:opacity .25s;z-index:8}
+  .scrim.show{opacity:1;pointer-events:auto}
+  .sheet{position:absolute;left:0;right:0;bottom:0;background:var(--surface);border-radius:22px 22px 0 0;
+    padding:10px 18px calc(20px + var(--sa-bot));transform:translateY(100%);transition:transform .3s cubic-bezier(.3,.9,.3,1);z-index:9}
+  .sheet.show{transform:none}
+  .grab{width:38px;height:4px;border-radius:2px;background:var(--line);margin:4px auto 14px}
+  .sheet h2{font-size:16px;margin:2px 0 14px}
+  .src-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .src{display:flex;flex-direction:column;gap:10px;padding:16px;border:1px solid var(--line);
+    border-radius:14px;background:var(--surface);cursor:pointer;font-family:var(--font);
+    text-align:left;border-color:var(--line);touch-action:manipulation}
+  .src:active{background:var(--accent-soft)}
+  .src .ic{width:34px;height:34px;color:var(--accent)}
+  .src .ic svg{width:34px;height:34px}
+  .src b{font-size:15px;font-weight:600}
+  .src span{font-size:12px;color:var(--muted)}
+
+  /* 浏览器：面包屑 + 选择底栏 */
+  .crumbs{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);margin-bottom:12px}
+  .selbar{position:sticky;bottom:0;margin:16px -18px -4px;padding:14px 18px calc(14px + var(--sa-bot));
+    background:var(--surface);border-top:1px solid var(--line);transform:translateY(120%);transition:transform .25s}
+  .selbar.show{transform:none}
+  .selbar .btn{padding:14px}
+  .tick{width:24px;height:24px;border-radius:7px;border:2px solid var(--line);flex:none;display:grid;place-items:center}
+  .row.sel .tick{background:var(--accent);border-color:var(--accent)}
+  .row.sel .tick svg{width:16px;height:16px;color:#fff}
+  .row:not(.sel) .tick svg{display:none}
+
+  /* 进度骨架 */
+  .skel{height:14px;border-radius:7px;background:linear-gradient(90deg,#eee 25%,#f6f6f6 37%,#eee 63%);
+    background-size:400% 100%;animation:sh 1.3s infinite;margin:10px 0}
+  .skel.lg{height:26px;width:60%}.skel.w90{width:90%}.skel.w70{width:70%}.skel.w80{width:80%}
+  @keyframes sh{0%{background-position:100% 0}100%{background-position:-100% 0}}
+  .center-note{text-align:center;color:var(--muted);font-size:14px;margin-top:24px}
+
+  /* 结果页 */
+  .seg{display:inline-flex;background:#eceae6;border-radius:10px;padding:3px;margin:0 0 14px}
+  .seg button{border:0;background:transparent;padding:7px 16px;border-radius:8px;font-size:13.5px;
+    font-weight:600;color:var(--muted);cursor:pointer;font-family:var(--font)}
+  .seg button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .doc{padding:18px;font-size:15px;line-height:1.75}
+  .doc h1{font-size:22px;margin:.2em 0}.doc h2{font-size:19px;margin:.6em 0 .2em}.doc h3{font-size:16.5px}
+  .doc table{border-collapse:collapse;width:100%;margin:.6em 0;font-size:13.5px}
+  .doc th,.doc td{border:1px solid var(--line);padding:8px 10px;text-align:left}
+  .doc th{background:var(--accent-soft)}
+  .doc code{font-family:var(--mono);background:#f0efec;padding:1px 5px;border-radius:5px;font-size:13px}
+  .doc pre{background:#f0efec;padding:12px;border-radius:10px;overflow:auto}
+  .doc ul,.doc ol{padding-left:20px}.doc li{margin:.25em 0}
+  .raw{white-space:pre-wrap;word-break:break-word;font-family:var(--mono);font-size:12.5px;line-height:1.6;
+    padding:18px;color:#333}
+  .actions{position:sticky;bottom:0;margin:14px -18px -4px;padding:12px 14px calc(12px + var(--sa-bot));
+    background:var(--surface);border-top:1px solid var(--line);display:flex;gap:10px}
+  .actions .btn{flex:1;padding:13px;font-size:14.5px}
+
+  .err{color:var(--danger);font-size:14px;line-height:1.6;padding:16px;background:#fbeceb;
+    border:1px solid #f2d4d1;border-radius:12px}
+  .toast{position:absolute;left:50%;bottom:calc(90px + var(--sa-bot));transform:translate(-50%,20px);
+    background:var(--ink);color:#fff;padding:11px 18px;border-radius:999px;font-size:13.5px;opacity:0;
+    transition:.25s;z-index:20;pointer-events:none;white-space:nowrap}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  .proto{display:inline-block;font-size:11px;color:var(--muted);background:#eceae6;border-radius:999px;
+    padding:3px 10px;margin-bottom:10px}
+  .field{margin:8px 0 4px}
+  .field label{font-size:13px;color:var(--muted)}
+  .field input[type=text]{width:100%;margin-top:6px;padding:12px 14px;font-size:15px;border:1px solid var(--line);
+    border-radius:10px;font-family:var(--font)}
+  .setrow{display:flex;align-items:center;justify-content:space-between;padding:15px 16px}
+  .setrow + .setrow{border-top:1px solid var(--line)}
+  .setrow .t{font-size:15px}.setrow .d{font-size:12px;color:var(--muted);margin-top:2px}
+  .switch{width:46px;height:28px;border-radius:999px;background:var(--line);position:relative;cursor:pointer;transition:.2s;flex:none;border:0;padding:0;appearance:none}
+  .switch.on{background:var(--accent)}
+  .switch::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .switch.on::after{left:21px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="brand" id="brand">万物转文本</div>
+    <div style="display:flex;gap:2px">
+      <button class="iconbtn" id="btnBack" style="display:none" aria-label="返回">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button class="iconbtn" id="btnSettings" aria-label="设置">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.63.66 1.1 1.31 1.1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- 首页：最近转换 -->
+  <section class="view active" id="v-home">
+    <h1 class="title">把文件，变成<br>能读能用的文字</h1>
+    <p class="sub">Word、网页、表格…一键转成干净的文本，复制给 AI 或随处粘贴。</p>
+    <div id="recentWrap">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:6px 2px 10px">
+        <b style="font-size:15px">最近转换</b>
+      </div>
+      <div class="card" id="recentList"></div>
+    </div>
+  </section>
+
+  <!-- 文件浏览器 -->
+  <section class="view" id="v-browse">
+    <div class="crumbs">
+      <span id="crumb">我的手机 › 文档</span>
+    </div>
+    <div class="card" id="fileList"></div>
+    <div class="selbar" id="selbar"><button class="btn btn-primary" id="doConvert">转换所选（<span id="selCount">0</span>）</button></div>
+  </section>
+
+  <!-- 进度 -->
+  <section class="view" id="v-progress">
+    <div class="card" style="padding:20px">
+      <div class="skel lg"></div><div class="skel w90"></div><div class="skel"></div>
+      <div class="skel w80"></div><div class="skel w70"></div>
+    </div>
+    <div class="center-note">正在读取并转换…</div>
+  </section>
+
+  <!-- 结果 -->
+  <section class="view" id="v-result">
+    <div class="seg"><button id="segPreview" class="on">预览</button><button id="segRaw">原文</button></div>
+    <div class="card" id="resultBody"><div class="doc"></div></div>
+    <div class="actions">
+      <button class="btn btn-primary" id="actCopy">复制给 AI</button>
+      <button class="btn btn-ghost" id="actExport">导出</button>
+    </div>
+  </section>
+
+  <!-- 设置 -->
+  <section class="view" id="v-settings">
+    <div class="card" style="overflow:hidden">
+      <div class="setrow"><div><div class="t">保存转换历史</div><div class="d">在手机上留存你转过的内容</div></div><button type="button" class="switch on" id="swHist"></button></div>
+      <div class="setrow"><div><div class="t">支持的文件</div><div class="d">Word · 网页 · CSV 表格 · JSON · 纯文本</div></div></div>
+      <div class="setrow"><div><div class="t">关于</div><div class="d">万物转文本 · 引擎 v0.1（离线可用）</div></div></div>
+    </div>
+    <p style="text-align:center;color:var(--muted);font-size:12px;margin-top:18px">你的文件只在本机转换，不上传</p>
+  </section>
+
+  <!-- 粘贴文本面板 -->
+  <section class="view" id="v-paste">
+    <div class="field"><label>把文字/网页内容贴进来，直接转成干净文本</label>
+      <input type="text" id="pastePath" placeholder="或填一个本机文件绝对路径试用引擎" />
+    </div>
+    <button class="btn btn-primary" style="margin-top:16px" id="pasteGo">转换</button>
+    <p class="sub" style="margin-top:14px">提示：当前为桌面验证版，正式版此入口改为手机相册/文件。</p>
+  </section>
+
+  <!-- 底部弹层：来源 -->
+  <div class="scrim" id="scrim"></div>
+  <div class="sheet" id="sheet">
+    <div class="grab"></div>
+    <h2>从哪拿文件？</h2>
+    <div class="src-grid">
+      <button type="button" class="src" data-src="browse"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div><b>本机文件</b><span>浏览手机里的文档</span></button>
+      <button type="button" class="src" data-src="camera"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg></div><b>拍照</b><span>拍单据、书页</span></button>
+      <button type="button" class="src" data-src="url"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg></div><b>网址</b><span>贴一个链接</span></button>
+      <button type="button" class="src" data-src="paste"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/></svg></div><b>粘贴文本</b><span>贴一段内容</span></button>
+    </div>
+  </div>
+
+  <button class="fab" id="fab" aria-label="添加">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+  </button>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* 零依赖单文件前端：直接跑在已编译的 Tauri 壳里。
+   convert 命令真实接线：选中"示例文档"或填路径 → invoke('convert',{path}) → 渲染。
+   文件浏览器为界面原型(演示数据)，等安卓/iOS 原生层(T4/T5)接真目录。 */
+const invoke = (window.__TAURI__ && window.__TAURI__.core)
+  ? window.__TAURI__.core.invoke : async ()=>{ throw new Error('未连接引擎（请在 App 内打开）'); };
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const state={view:'home',sel:new Set(),md:'',title:''};
+
+/* 视图路由 */
+function go(v){
+  state.view=v;
+  $$('.view').forEach(el=>el.classList.toggle('active', el.id==='v-'+v));
+  $('#fab').style.display = v==='home' ? 'grid':'none';
+  $('#btnBack').style.display = v==='home' ? 'none':'grid';
+  $('#btnSettings').style.display = v==='home' ? 'grid':'none';
+  $('#brand').style.display = v==='home' ? 'block':'none';
+  $('#app').style.position='relative';
+}
+function back(){
+  if(state.view==='result'||state.view==='progress') go('browse');
+  else go('home');
+}
+$('#btnBack').onclick=back;
+$('#btnSettings').onclick=()=>go('settings');
+
+/* 底部弹层 */
+function openSheet(){$('#scrim').classList.add('show');$('#sheet').classList.add('show');}
+function closeSheet(){$$('.scrim,.sheet').forEach(e=>e.classList.remove('show'));}
+$('#fab').onclick=openSheet; $('#scrim').onclick=closeSheet;
+$$('.src').forEach(s=>s.onclick=()=>{
+  closeSheet(); const k=s.dataset.src;
+  if(k==='browse') renderBrowser();
+  else if(k==='paste'||k==='url'){$('#pastePath').value='';go('paste');}
+  else toast('拍照 / 网址 转换将在接入手机原生层后开放');
+});
+
+/* 真实文件浏览器 */
+const SUPPORTED_EXT = new Set(['docx','html','htm','csv','json','txt','md']);
+let currentDir = '';
+
+async function renderBrowser(path){
+  state.sel.clear(); updateSel();
+  if(!path){ path = await invoke('default_dir'); }
+  try{
+    const files = await invoke('list_dir',{path});
+    currentDir = path;
+    // 面包屑
+    const parts = path.replace(/^\/Users\/[^/]+/,'~').split('/').filter(Boolean);
+    $('#crumb').innerHTML = parts.map((p,i)=>`<span data-p="${path.split('/').slice(0,i+1).join('/')}" style="cursor:pointer;color:${i===parts.length-1?'var(--ink)':'var(--accent)'}">${p}</span>`).join(' › ');
+    $$('#crumb span').forEach(s=>s.onclick=()=>renderBrowser(s.dataset.p));
+    // 文件列表
+    if(!files.length){$('#fileList').innerHTML='<div class="list-empty" style="padding:30px">这个文件夹是空的</div>';go('browse');return;}
+    $('#fileList').innerHTML = files.map((f,i)=>{
+      const isDir=f.is_dir;
+      const ok=!isDir && SUPPORTED_EXT.has(f.ext);
+      const cls = isDir?'':(ok?'':'off');
+      const iconCls = isDir?'':({docx:'f-doc',html:'f-html',htm:'f-html',csv:'f-csv',json:'f-json',txt:'f-txt',md:'f-txt'}[f.ext]||'f-off');
+      const iconText = isDir?'':(f.ext.slice(0,3).toUpperCase()||'');
+      const sizeStr = f.size>1048576?(f.size/1048576).toFixed(1)+' MB':f.size>1024?(f.size/1024).toFixed(0)+' KB':f.size+' B';
+      return `<button type="button" class="row ${cls}" data-i="${i}" data-dir="${isDir}" data-path="${f.path}" data-ok="${ok}">
+        ${isDir?`<div class="ficon" style="background:var(--accent-soft);color:var(--accent)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>`
+              :`<div class="ficon ${iconCls}">${iconText}</div>`}
+        <div class="meta"><div class="name">${esc(f.name)}</div><div class="info">${isDir?'文件夹':sizeStr+(ok?' · 可转换':!isDir?' · 不支持':'')}</div></div>
+        ${!isDir&&ok?`<div class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></div>`:
+          isDir?`<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>`:
+          `<span class="badge">不支持</span>`}
+      </button>`;
+    }).join('');
+    // 事件绑定
+    $$('#fileList .row').forEach(r=>r.onclick=()=>{
+      if(r.dataset.dir==='true'){renderBrowser(r.dataset.path);return;}
+      if(r.dataset.ok!=='true'){toast('这个文件类型暂不支持');return;}
+      r.classList.toggle('sel');
+      const p=r.dataset.path;
+      r.classList.contains('sel')?state.sel.add(p):state.sel.delete(p);
+      updateSel();
+    });
+  }catch(e){toast(String(e).slice(0,50));}
+  go('browse');
+}
+function updateSel(){$('#selCount').textContent=state.sel.size;$('#selbar').classList.toggle('show',state.sel.size>0);}
+$('#doConvert').onclick=async()=>{
+  const paths=[...state.sel];
+  if(!paths.length){toast('先选中文件');return;}
+  await runConvert(paths);
+};
+
+/* 粘贴 / 路径入口 */
+$('#pasteGo').onclick=async()=>{
+  let v=$('#pastePath').value.trim(); if(!v){toast('先贴内容或填路径');return;}
+  if(v.startsWith('/')){ await runConvert([v]); }
+  else{ toast('请输入一个本机文件绝对路径(以/开头)'); }
+};
+
+/* 真实调用引擎 + 存文件旁边 */
+async function runConvert(paths){
+  go('progress');
+  try{
+    const results=[];
+    for(const p of paths){
+      const outPath=await invoke('convert_save',{path:p});
+      const md=await invoke('convert',{path:p});
+      const name=p.split('/').pop();
+      results.push({name,md,outPath});
+    }
+    const r=results[0];
+    state.md=r.md;state.title=r.name;state.outPath=r.outPath;
+    setTimeout(()=>showResult(r.md,r.name,r.outPath),400);
+    pushRecent(r.name,'成功');
+  }catch(e){
+    state.md='';toast(String(e).slice(0,40));
+    go('result'); $('#resultBody').innerHTML=`<div class="err">😕 ${esc(String(e))}</div>`;
+    $('.actions').style.display='none';
+  }
+}
+function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+
+/* 极简 Markdown 渲染（预览用） */
+function mdToHtml(md){
+  let h=esc(md);
+  h=h.replace(/^### (.*)$/gm,'<h3>$1</h3>').replace(/^## (.*)$/gm,'<h2>$1</h2>').replace(/^# (.*)$/gm,'<h1>$1</h1>');
+  h=h.replace(/```([\s\S]*?)```/g,(m,c)=>`<pre>${c}</pre>`).replace(/`([^`]+)`/g,'<code>$1</code>');
+  h=h.replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>').replace(/\*([^*]+)\*/g,'<i>$1</i>');
+  // 表格
+  h=h.replace(/((?:^\|.*\|$\n?)+)/gm,blk=>{
+    const rows=blk.trim().split('\n'); if(rows.length<2)return blk;
+    const cells=r=>r.replace(/^\||\|$/g,'').split('|').map(c=>c.trim());
+    let t='<table>';
+    rows.forEach((r,ri)=>{ if(/^\|[\s\-|]+\|$/.test(r))return;
+      const tag=ri===0?'th':'td'; t+='<tr>'+cells(r).map(c=>`<${tag}>${c}</${tag}>`).join('')+'</tr>';});
+    return t+'</table>';});
+  h=h.replace(/^- (.*)$/gm,'<li>$1</li>').replace(/(<li>[\s\S]*?<\/li>)(?!\1)/g,m=>m);
+  h=h.replace(/((?:<li>.*<\/li>\n?)+)/g,'<ul>$1</ul>');
+  h=h.replace(/\n{2,}/g,'<br><br>').replace(/\n/g,'<br>');
+  return h;
+}
+function showResult(md,name,outPath){
+  $('#resultBody').innerHTML=`<div class="doc">${mdToHtml(md)}</div>`;
+  $('.actions').style.display='flex';
+  $('#segPreview').classList.add('on');$('#segRaw').classList.remove('on');
+  // 显示输出路径
+  let hint=$('#outHint');
+  if(!hint){hint=document.createElement('div');hint.id='outHint';hint.style.cssText='font-size:12px;color:var(--muted);padding:8px 18px 0;word-break:break-all';
+    $('#resultBody').after(hint);}
+  hint.textContent=outPath?('✓ 已存到: '+outPath):'';
+  go('result');
+}
+$('#segPreview').onclick=()=>{$('#segPreview').classList.add('on');$('#segRaw').classList.remove('on');
+  $('#resultBody').innerHTML=`<div class="doc">${mdToHtml(state.md)}</div>`;};
+$('#segRaw').onclick=()=>{$('#segRaw').classList.add('on');$('#segPreview').classList.remove('on');
+  $('#resultBody').innerHTML=`<div class="raw">${esc(state.md)}</div>`;};
+
+/* 两键 */
+$('#actCopy').onclick=async()=>{try{await navigator.clipboard.writeText(state.md);toast('已复制，去粘贴给 AI 吧');}
+  catch{toast('复制失败，可长按选中原文');}};
+$('#actExport').onclick=()=>{
+  const blob=new Blob([state.md],{type:'text/markdown'});const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download=(state.title||'out')+'.md';a.click();toast('已导出 .md');};
+
+/* 最近转换（localStorage） */
+function recent(){try{return JSON.parse(localStorage.getItem('recents')||'[]')}catch{return[]}}
+function pushRecent(name,st){const r=recent();r.unshift({name,st,when:'刚刚',kind:name.split('.').pop().toUpperCase().slice(0,3)||'MD'});
+  localStorage.setItem('recents',JSON.stringify(r.slice(0,12)));renderRecent();}
+function renderRecent(){
+  const r=recent();const el=$('#recentList');
+  if(!r.length){el.innerHTML=`<div class="list-empty">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 2h9l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M14 2v6h6"/></svg>
+    <div>还没有转换记录</div><div style="font-size:13px;margin-top:6px">点右下角 + 导入第一个文件</div></div>`;return;}
+  el.innerHTML=r.map(x=>`<div class="row"><div class="ficon f-${({DOC:'doc',CSV:'csv',JSO:'json',HTM:'html',TXT:'txt',PDF:'pdf',MD:'txt',XLS:'off'})[x.kind]||'txt'}">${x.kind}</div>
+    <div class="meta"><div class="name">${esc(x.name)}</div><div class="info">${x.when} · ${x.st}</div></div></div>`).join('');
+}
+renderRecent();
+
+/* 设置开关 */
+$$('.switch').forEach(s=>s.onclick=()=>s.classList.toggle('on'));
+
+/* toast */
+let tt;function toast(m){const e=$('#toast');e.textContent=m;e.classList.add('show');clearTimeout(tt);
+  tt=setTimeout(()=>e.classList.remove('show'),2200);}
+</script>
+</body>
+</html>

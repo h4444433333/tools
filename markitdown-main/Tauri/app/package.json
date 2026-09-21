@@ -1,0 +1,13 @@
+{
+  "name": "mdapp",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "tauri": "tauri"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.5",
+    "@tauri-apps/cli-darwin-arm64": "^2.11.5"
+  }
+}
