@@ -211,6 +211,7 @@ tools/
     ├── Tauri/                 # ← 改造代码全在这里
     │   ├── engine/            #    Rust 转换引擎 (mdcore crate)
     │   ├── app/               #    Tauri v2 App 壳 (前端 + 后端)
+    │   ├── out/               #    编译好的安装包（APK / Mac / Windows，不进 git）
     │   ├── docs/              #    设计文档
     │   └── specs/             #    SDD 规格
     ├── packages/              #    原始 Python 代码（参考用）
