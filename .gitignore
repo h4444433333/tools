@@ -22,3 +22,6 @@ Thumbs.db
 # 环境
 .env
 *.local
+
+# 安装包输出（走 GitHub Releases 分发，不进 git）
+out/

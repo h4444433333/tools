@@ -52,14 +52,20 @@ A monorepo of **handy tools rebuilt for mobile phones**. Every tool here was ori
 
 **Downloads:**
 
-| Platform | File | Size |
-|----------|------|------|
-|  Android (APK) | [textify-android-debug.apk](https://github.com/h4444433333/tools/releases/latest/download/textify-android-debug.apk) | 443 MB |
-| 💻 Mac (Apple Silicon) | [textify-mac-universal.zip](https://github.com/h4444433333/tools/releases/latest/download/textify-mac-universal.zip) | 6.6 MB |
-| 🍎 iPhone (iOS) | Coming soon — requires Apple Developer signing; can run on Xcode Simulator for now | — |
+| Platform | Download | Size |
+|----------|----------|------|
+| 📱 Android | [Textify-Android.apk](https://github.com/h4444433333/tools/releases/latest/download/Textify-Android.apk) | 121 MB |
+| 💻 Mac | [Textify-Mac.zip](https://github.com/h4444433333/tools/releases/latest/download/Textify-Mac.zip) | 2.8 MB |
+| 🖥️ Windows | [Textify-Windows.zip](https://github.com/h4444433333/tools/releases/latest/download/Textify-Windows.zip) | — |
+| 🍎 iPhone | Requires Apple Developer signing — see [note](#ios-note) | — |
 
-> Android: enable "Install from unknown sources" in Settings, then tap the APK.
-> Mac: unzip, drag to Applications. If Gatekeeper blocks it, right-click → Open.
+**How to install:**
+- **Android**: Download the .apk → tap it → Install. Done.
+- **Mac**: Unzip → drag Textify.app to Applications → open it.
+- **Windows**: Unzip → double-click Textify.exe.
+
+<a id="ios-note"></a>
+> **Why can't I install on iPhone like Android?** Apple locks down iOS — apps must be signed by a registered developer ($99/year) and distributed via App Store or TestFlight. Sideloading is not as simple as tapping a file. This is an Apple restriction, not a project limitation.
 
 **Features:**
 - 📂 Built-in file browser — navigate your phone's storage, no external app needed
@@ -136,14 +142,19 @@ cd ../.. && npx tauri ios build
 
 **下载安装：**
 
-| 平台 | 文件 | 大小 |
+| 平台 | 下载 | 大小 |
 |------|------|------|
-| 📱 安卓 (APK) | [textify-android-debug.apk](https://github.com/h4444433333/tools/releases/latest/download/textify-android-debug.apk) | 443 MB |
-| 💻 Mac (苹果芯片) | [textify-mac-universal.zip](https://github.com/h4444433333/tools/releases/latest/download/textify-mac-universal.zip) | 6.6 MB |
-| 🍎 iPhone (iOS) | 待上架 —— 需要苹果开发者签名；可先在 Mac 的 Xcode 模拟器上跑 | — |
+| 📱 安卓 | [Textify-Android.apk](https://github.com/h4444433333/tools/releases/latest/download/Textify-Android.apk) | 121 MB |
+| 💻 Mac | [Textify-Mac.zip](https://github.com/h4444433333/tools/releases/latest/download/Textify-Mac.zip) | 2.8 MB |
+| 🖥️ Windows | [Textify-Windows.zip](https://github.com/h4444433333/tools/releases/latest/download/Textify-Windows.zip) | — |
+| 🍎 iPhone | 需要苹果开发者签名，见下方说明 | — |
 
-> 安卓：设置里开启“允许安装未知来源应用”，然后点 APK 安装。
-> Mac：解压后拖到“应用程序”文件夹。如果提示无法打开，右键→打开。
+**怎么装：**
+- **安卓**：下载 .apk → 点开 → 安装。就这样。
+- **Mac**：解压 → 把 Textify.app 拖到“应用程序” → 打开。
+- **Windows**：解压 → 双击 Textify.exe。
+
+> **为什么 iPhone 不能像安卓一样直接装？** 苹果封闭了 iOS 系统，App 必须经过开发者签名（$99/年）并通过 App Store 或 TestFlight 分发。直接点文件安装这条路是苹果不允许的，不是我们工具的问题。
 
 **功能：**
 - 📂 App 内自带文件浏览器——直接翻手机存储，不用跳到别的 App
