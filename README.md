@@ -79,28 +79,32 @@ A monorepo of **handy tools rebuilt for mobile phones**. Every tool here was ori
 - **App shell**: [Tauri v2](markitdown-main/Tauri/app/) — one codebase → Android APK + iOS IPA + Mac .app
 - **Based on**: [Microsoft markitdown](markitdown-main/) (original Python project, kept as reference)
 
-**快速上手：**
+<details>
+<summary>🛠️ Build from source (developers only, skip if you just want to use the app)</summary>
+
 ```bash
-# 克隆整个仓库
+# Clone the full repo
 git clone https://github.com/h4444433333/tools.git && cd tools
 
-# 只拉取某一个工具（稀疏检出，省流量）
+# Or pull only one tool (sparse checkout, saves bandwidth)
 git clone --filter=blob:none --sparse https://github.com/h4444433333/tools.git
 cd tools
-git sparse-checkout set markitdown-main/Tauri   # 只要这一个工具的代码
+git sparse-checkout set markitdown-main/Tauri
 
-# 编译引擎
+# Build the Rust engine
 cd markitdown-main/Tauri/engine && cargo build --release
 
-# 跑 Mac 版
-cd ../app/src-tauri && cargo build && open target/debug/mdapp
+# Run Mac app
+cd ../app/src-tauri && cargo build --release && open target/release/mdapp
 
-# 出安卓 APK
+# Build Android APK
 cd ../.. && npx tauri android build --apk
 
-# 出 iPhone 版（需苹果开发者账号）
+# Build iOS (requires Apple Developer account $99/year)
 cd ../.. && npx tauri ios build
 ```
+
+</details>
 
 ---
 
@@ -168,7 +172,9 @@ cd ../.. && npx tauri ios build
 - **App 壳**：[Tauri v2](markitdown-main/Tauri/app/) —— 一套代码出安卓 APK + iPhone IPA + Mac .app
 - **参考原项目**：[Microsoft markitdown](markitdown-main/)（Python 版，保留作为架构参考）
 
-**快速上手：**
+<details>
+<summary>🛠️ 开发者：从源码编译（普通用户忽略此段）</summary>
+
 ```bash
 # 克隆整个仓库
 git clone https://github.com/h4444433333/tools.git && cd tools
@@ -176,20 +182,22 @@ git clone https://github.com/h4444433333/tools.git && cd tools
 # 只拉取某一个工具（稀疏检出，省流量）
 git clone --filter=blob:none --sparse https://github.com/h4444433333/tools.git
 cd tools
-git sparse-checkout set markitdown-main/Tauri   # 只要这一个工具的代码
+git sparse-checkout set markitdown-main/Tauri
 
 # 编译引擎
 cd markitdown-main/Tauri/engine && cargo build --release
 
 # 跑 Mac 版
-cd ../app/src-tauri && cargo build && open target/debug/mdapp
+cd ../app/src-tauri && cargo build --release && open target/release/mdapp
 
 # 出安卓 APK
 cd ../.. && npx tauri android build --apk
 
-# 出 iPhone 版（需苹果开发者账号）
+# 出 iPhone 版（需苹果开发者账号 $99/年）
 cd ../.. && npx tauri ios build
 ```
+
+</details>
 
 ---
 
