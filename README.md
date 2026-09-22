@@ -46,6 +46,8 @@ A monorepo of **handy tools rebuilt for mobile phones**. Every tool here was ori
 
 > Turn files into text you can actually use — copy to AI, paste anywhere, export as Markdown.
 
+**📂 Source:** [`markitdown-main/Tauri/`](/markitdown-main/Tauri/)
+
 **Based on:** [Microsoft markitdown](https://github.com/microsoft/markitdown) (MIT License) — an open-source tool that converts Office documents, PDFs, images, and more to Markdown. We rewrote its core in Rust and wrapped it as a phone-first mobile app.
 
 **Downloads:**
@@ -54,7 +56,7 @@ A monorepo of **handy tools rebuilt for mobile phones**. Every tool here was ori
 |----------|------|------|
 |  Android (APK) | [textify-android-debug.apk](https://github.com/h4444433333/tools/releases/latest/download/textify-android-debug.apk) | 443 MB |
 | 💻 Mac (Apple Silicon) | [textify-mac-universal.zip](https://github.com/h4444433333/tools/releases/latest/download/textify-mac-universal.zip) | 6.6 MB |
-| 🍎 iPhone (iOS) | Coming soon — requires Apple Developer signing | — |
+| 🍎 iPhone (iOS) | Coming soon — requires Apple Developer signing; can run on Xcode Simulator for now | — |
 
 > Android: enable "Install from unknown sources" in Settings, then tap the APK.
 > Mac: unzip, drag to Applications. If Gatekeeper blocks it, right-click → Open.
@@ -128,6 +130,8 @@ cd ../.. && npx tauri ios build
 
 > 把任何文件变成你能用的文字——复制给 AI、随处粘贴、导出 Markdown。
 
+**📂 源码路径：** [`markitdown-main/Tauri/`](/markitdown-main/Tauri/)
+
 **基于：** [Microsoft markitdown](https://github.com/microsoft/markitdown)（MIT 开源协议）——微软出品的文档转 Markdown 工具。我们用 Rust 重写了它的核心引擎，并包装成手机优先的移动端 App。
 
 **下载安装：**
@@ -136,7 +140,7 @@ cd ../.. && npx tauri ios build
 |------|------|------|
 | 📱 安卓 (APK) | [textify-android-debug.apk](https://github.com/h4444433333/tools/releases/latest/download/textify-android-debug.apk) | 443 MB |
 | 💻 Mac (苹果芯片) | [textify-mac-universal.zip](https://github.com/h4444433333/tools/releases/latest/download/textify-mac-universal.zip) | 6.6 MB |
-| 🍎 iPhone (iOS) | 待上架 —— 需要苹果开发者签名 | — |
+| 🍎 iPhone (iOS) | 待上架 —— 需要苹果开发者签名；可先在 Mac 的 Xcode 模拟器上跑 | — |
 
 > 安卓：设置里开启“允许安装未知来源应用”，然后点 APK 安装。
 > Mac：解压后拖到“应用程序”文件夹。如果提示无法打开，右键→打开。
