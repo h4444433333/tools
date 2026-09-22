@@ -56,7 +56,7 @@ A monorepo of **handy tools rebuilt for mobile phones**. Every tool here was ori
 |----------|----------|------|
 | 📱 Android | [Textify-Android.apk](https://github.com/h4444433333/tools/releases/latest/download/Textify-Android.apk) | 121 MB |
 | 💻 Mac | [Textify-Mac.zip](https://github.com/h4444433333/tools/releases/latest/download/Textify-Mac.zip) | 2.8 MB |
-| 🖥️ Windows | [Textify-Windows.zip](https://github.com/h4444433333/tools/releases/latest/download/Textify-Windows.zip) | — |
+| 🖥️ Windows | [Textify-Windows.zip](https://github.com/h4444433333/tools/releases/latest/download/Textify-Windows.zip) | 2.5 MB |
 | 🍎 iPhone | Requires Apple Developer signing — see [note](#ios-note) | — |
 
 **How to install:**
@@ -150,7 +150,7 @@ cd ../.. && npx tauri ios build
 |------|------|------|
 | 📱 安卓 | [Textify-Android.apk](https://github.com/h4444433333/tools/releases/latest/download/Textify-Android.apk) | 121 MB |
 | 💻 Mac | [Textify-Mac.zip](https://github.com/h4444433333/tools/releases/latest/download/Textify-Mac.zip) | 2.8 MB |
-| 🖥️ Windows | [Textify-Windows.zip](https://github.com/h4444433333/tools/releases/latest/download/Textify-Windows.zip) | — |
+| 🖥️ Windows | [Textify-Windows.zip](https://github.com/h4444433333/tools/releases/latest/download/Textify-Windows.zip) | 2.5 MB |
 | 🍎 iPhone | 需要苹果开发者签名，见下方说明 | — |
 
 **怎么装：**
