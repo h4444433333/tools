@@ -19,8 +19,9 @@ Thumbs.db
 **/gen/ios/
 **/mdapp.app/
 
-# 环境
+# 环境（含服务器密码，绝不能提交！）
 .env
+.env.notes
 *.local
 
 # 安装包输出（走 GitHub Releases 分发，不进 git）

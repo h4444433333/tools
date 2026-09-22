@@ -1,0 +1,21 @@
+name: Build Windows
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Build release exe
+        run: cargo build --release --manifest-path markitdown-main/Tauri/app/src-tauri/Cargo.toml
+
+      - name: Upload exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: Textify-Windows
+          path: markitdown-main/Tauri/app/src-tauri/target/release/mdapp.exe
