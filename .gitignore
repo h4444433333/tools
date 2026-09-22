@@ -24,5 +24,5 @@ Thumbs.db
 .env.notes
 *.local
 
-# 安装包输出（走 GitHub Releases 分发，不进 git）
-out/
+# 安装包输出（统一放各工具 Tauri/ 下，走 GitHub Releases 分发，不进 git）
+markitdown-main/Tauri/out/
